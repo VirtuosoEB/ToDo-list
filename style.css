@@ -1,8 +1,14 @@
 body {
     font-size: 15pt;
-    background-color: greenyellow;
+    background-color: white;
+    text-align: center;
 }
 button {
-    background-color: blue;
-    color: red;
+    background-color: lightgrey;
+    color: black;
+    border: none ;
+    border-radius: 5px;
+}
+li {
+    text-align: left;
 }
