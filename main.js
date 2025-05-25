@@ -47,6 +47,7 @@ function addTaskForm() {
     checkTask.type = "checkbox";
     checkTask.addEventListener("change", () => {
       listElement.style.textDecoration = checkTask.checked ? "line-through" : "none";
+      saveTasks()
     });
 
     // Create delete button
@@ -56,6 +57,7 @@ function addTaskForm() {
     deleteBtn.style.marginLeft = "10px";
     deleteBtn.addEventListener("click", () => {
       toDo.removeChild(listElement);
+      saveTasks();
     });
 
     // Append checkbox and delete button to the task
@@ -65,6 +67,7 @@ function addTaskForm() {
     // Append the task to the task list
     const toDo = document.getElementById("toDo");
     toDo.appendChild(listElement);
+    saveTasks();
 
     // Clear form
     taskFormDiv.removeChild(taskForm);
@@ -74,13 +77,59 @@ function addTaskForm() {
   }
 }
 
-// Testing function to log all list items
-function test() {
-  const ul = document.querySelectorAll("#toDo li");
-  console.log(ul);
-  for (let i = 0; i < ul.length; i++) {
-    console.log(ul[i].textContent);
+// saves tasks to local storage 
+function saveTasks() {
+  const li = document.querySelectorAll("#toDo li");
+  let taskStorage = [];
+  console.log(li);
+  //creates object and adds it to task storage variable 
+  for (let i = 0; i < li.length; i++){
+    let taskObject = {
+      Name: li[i].childNodes[0].textContent.trim(),
+      Completed: li[i].querySelector("input[type = 'checkbox']").checked
+    }
+    taskStorage.push(taskObject);
   }
+  localStorage.setItem("tasks", JSON.stringify(taskStorage));
 }
 
-console.log("Script loaded!");
+function loadTasks() {
+  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const toDo = document.getElementById("toDo");
+
+  tasks.forEach(taskObject => {
+    const listElement = document.createElement("li");
+    listElement.textContent = taskObject.Name;
+
+    // Create checkbox
+    const checkTask = document.createElement("input");
+    checkTask.type = "checkbox";
+    checkTask.checked = taskObject.Completed;
+    checkTask.addEventListener("change", () => {
+      listElement.style.textDecoration = checkTask.checked ? "line-through" : "none";
+      saveTasks(); // Update localStorage when checkbox changes
+    });
+
+    // Create delete button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "✖";
+    deleteBtn.type = "button";
+    deleteBtn.style.marginLeft = "10px";
+    deleteBtn.addEventListener("click", () => {
+      toDo.removeChild(listElement);
+      saveTasks(); // Update localStorage on delete
+    });
+
+    // Apply strikethrough style if already completed
+    if (taskObject.Completed) {
+      listElement.style.textDecoration = "line-through";
+    }
+
+    // Add checkbox and delete button
+    listElement.appendChild(checkTask);
+    listElement.appendChild(deleteBtn);
+    toDo.appendChild(listElement);
+  });
+}
+
+window.onload = loadTasks;
